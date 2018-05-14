@@ -38,6 +38,16 @@ video {
   margin: 0 auto;
 }
 
+#canvas {
+  display:none;
+}
+
+.output {
+  width: 340px;
+  display:inline-block;
+}
+
+
 footer {
   background: #333e5a;
   color: #fff;

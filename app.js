@@ -1,6 +1,10 @@
 const video = document.getElementById('video');
 const button = document.getElementById('button');
 const select = document.getElementById('select');
+
+let width = 320;
+let height = 0;
+let streaming = false;
 let currentStream;
 
 function stopMediaTracks(stream) {
@@ -24,6 +28,25 @@ function gotDevices(mediaDevices) {
     }
   });
 }
+
+video.addEventListener('canplay', function(ev){
+  if (!streaming) {
+    height = video.videoHeight / (video.videoWidth/width);
+  
+    // Firefox currently has a bug where the height can't be read from
+    // the video, so we will make assumptions if this happens.
+  
+    if (isNaN(height)) {
+      height = width / (4/3);
+    }
+  
+    video.setAttribute('width', width);
+    video.setAttribute('height', height);
+    canvas.setAttribute('width', width);
+    canvas.setAttribute('height', height);
+    streaming = true;
+  }
+}, false);
 
 button.addEventListener('click', event => {
   if (typeof currentStream !== 'undefined') {
@@ -51,5 +74,36 @@ button.addEventListener('click', event => {
       console.error(error);
     });
 });
+
+function clearphoto() {
+  var context = canvas.getContext('2d');
+  context.fillStyle = "#AAA";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+
+  var data = canvas.toDataURL('image/png');
+  photo = document.getElementById('photo');
+  photo.setAttribute('src', data);
+}
+
+function takepicture() {
+  var context = canvas.getContext('2d');
+  if (width && height) {
+    canvas.width = width;
+    canvas.height = height;
+    context.drawImage(video, 0, 0, width, height);
+  
+    var data = canvas.toDataURL('image/png');
+    photo = document.getElementById('photo');
+    photo.setAttribute('src', data);
+    
+  } else {
+    clearphoto();
+  }
+}
+
+takephoto.addEventListener('click', (event) => {
+  takepicture();
+  event.preventDefault();
+}, false);
 
 navigator.mediaDevices.enumerateDevices().then(gotDevices);
